@@ -17,11 +17,15 @@ class Format
     @correct, @incorrect = @params.partition { |format| FORMATS[format] }
   end
 
-  def success?
+  def valid?
     @incorrect.empty?
   end
 
-  def time
+  def unknown_format
+    @body = "Unknown time format #{@incorrect}"
+  end
+
+  def success
     formats = @correct.map { |format| FORMATS[format]}
     Time.now.strftime(formats.join('-'))
   end

@@ -3,47 +3,36 @@ require_relative 'format'
 class App
 
   def call(env)
-    @request = Rack::Request.new(env)
-    response
-    [status, headers, body]
+    path = env['REQUEST_PATH']
+    params = parse_query(env['QUERY_STRING'])
+    process(path, params)
   end
 
   private
 
-  def response
-    return wrong_path unless @request.path_info == '/time'
-
-    @format = Format.new(@request.params)
-    @format.check_format
-    return unknown_format unless @format.success?
-
-    formatted_time
+  def process(path, params)
+    return response(404, "Wrong path") if path != '/time'
+    time_response(params)
   end
 
-  def status
-    @status_code
+  def time_response(params)
+    format = Format.new(params)
+    format.check_format
+    
+    if format.valid?
+      response(200, format.success)
+    else
+      response(400, format.unknown_format)
+    end
   end
 
-  def headers
-    { 'Content-Type' => 'text/plain' }
+  def response(status, body = "")
+    headers = { 'Content-Type' => 'text/plain' }
+    Rack::Response.new(body, status, headers).finish
   end
 
-  def body
-    ["#{@message}"]
-  end
-
-  def formatted_time
-    @status_code = 200
-    @message = @format.time
-  end
-
-  def unknown_format
-    @status_code = 400
-    @message = "Unknown time format #{@incorrect}"
-  end
-
-  def wrong_path
-    @status_code = 404
-    @message = 'Page not found'
+  def parse_query(query)
+    query = query.gsub('%2C', ',')
+    query.split('&').map { |s| s.split('=') }.to_h
   end
 end
