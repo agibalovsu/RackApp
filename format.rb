@@ -14,7 +14,8 @@ class Format
   end
 
   def check_format
-    @correct, @incorrect = @params.partition { |format| FORMATS[format] }
+    @correct = @params.map { |format| FORMATS[format] }
+    @incorrect = @params.reject { |format| FORMATS[format] }
   end
 
   def valid?
@@ -26,7 +27,6 @@ class Format
   end
 
   def success
-    formats = @correct.map { |format| FORMATS[format]}
-    Time.now.strftime(formats.join('-'))
+    Time.now.strftime(@correct.join('-'))
   end
 end
