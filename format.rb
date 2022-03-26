@@ -4,18 +4,25 @@ class Format
               "month"  => "%m",
               "day"    => "%d",
               "hour"   => "%h",
-              "minute" => "%Mm",
+              "minute" => "%M",
               "second" => "%s" }.freeze
 
   attr_reader :incorrect
 
   def initialize(params)
     @params = params['format'].split(',')
+    @correct = []
+    @incorrect = []
   end
 
   def check_format
-    @correct = @params.map { |format| FORMATS[format] }
-    @incorrect = @params.reject { |format| FORMATS[format] }
+    @params.map do |format| 
+      if FORMATS.include?(format)
+        @correct << FORMATS[format]
+      else 
+        @incorrect << format
+      end
+    end
   end
 
   def valid?
@@ -23,7 +30,7 @@ class Format
   end
 
   def unknown_format
-    @body = "Unknown time format #{@incorrect}"
+    body = "Unknown time format #{@incorrect}"
   end
 
   def success
