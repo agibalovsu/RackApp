@@ -17,7 +17,7 @@ class Format
 
   def check_format
     @params.map do |format| 
-      if FORMATS.include?(format)
+      if FORMATS[format]
         @correct << FORMATS[format]
       else 
         @incorrect << format
@@ -30,7 +30,7 @@ class Format
   end
 
   def unknown_format
-    body = "Unknown time format #{@incorrect}"
+    "Unknown time format #{@incorrect}"
   end
 
   def success
